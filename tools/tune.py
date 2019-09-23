@@ -501,10 +501,19 @@ async def main():
 
     if opt.Xi and opt.models:
         summarize(opt, steps=6)
+        # Mean of 10 sampling points from opt.ask()
+        vs = opt.ask(n_points=10, strategy='cl_mean')
+        ask_values = np.array(vs[0])
+        for i in range(9):
+            ask_values += np.array(vs[i+1])
+        best_values = []
+        for i in range(len(dimensions)):
+            best_values.append(int((ask_values[i] / 10) + 0.5))
+        print(f'Best params from opt.ask() (mean of 10 points): {best_values}')
         if len(dimensions) == 1:
             plot_optimizer(opt, dimensions[0].low, dimensions[0].high)
     else:
-        print('Not enought data to summarize results.')
+        print('Not enough data to summarize results.')
 
     logging.debug('Quitting engines')
     try:
